@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tạo thông điệp gửi Đại hội</title>
+    <style>
+        /* Import font từ file local */
+        @font-face {
+            font-family: 'ArialLocal';
+            src: url('https://feeplanceritcantho.click/public/SVN-Beloved.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .form-section {
+            flex: 1;
+        }
+        .preview-section {
+            flex: 1;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        .preview-container {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+        }
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+            position: relative;
+            z-index: 2; /* Frame nằm trên */
+        }
+        .preview-text {
+            position: absolute;
+            top: 25%;
+            left: 40%;
+            color: #0f1eee;
+            font-size: 12.5px;
+            font-family: 'ArialLocal', Arial, sans-serif; /* Sử dụng font từ file */
+            text-align: left;
+            max-width: 300px;
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Giữ nguyên enter và xuống dòng */
+            line-height: 1.4; /* Khoảng cách giữa các dòng */
+            z-index: 3; /* Text nằm trên cùng */
+        }
+        .preview-signature {
+            position: absolute;
+            bottom: 19%;
+            right: 10%;
+            color: #e70b0bff;
+            font-size: 14px;
+            text-align: right;
+            max-width: 300px;
+            white-space: pre-wrap;
+            line-height: 1.3;
+            z-index: 3;
+        }
+        .preview-avatar {
+            position: absolute;
+            top: 52%;
+            left: 19%;
+            transform: translate(-50%, -50%);
+            width: 130px;
+            height: 130px;
+            border-radius: 10px;
+            object-fit: cover;
+            z-index: 1; /* Avatar nằm dưới cùng */
+        }
+        form div {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, button {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            padding: 10px 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h2>Tạo thông điệp gửi Đại hội</h2>
+            <form action="https://feeplanceritcantho.click/frame/generate" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="_token" value="pUo8pGP8g23DkGWPO0V9Bqw0vUpWrIi6WCFMXjYf" autocomplete="off">                <div>
+                    <label>Ảnh đại diện:</label>
+                    <input type="file" name="image" id="imageInput" accept="image/*" required>
+                </div>
+                <div>
+                    <label>Thông điệp:</label><br>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <span>Không vượt quá 500 ký tự</span>
+                        <span id="charCount" style="color: #666; font-size: 12px;">0/700</span>
+                    </div>
+                   <textarea name="text" id="textInput" rows="6" cols="60" placeholder="Nhập thông điệp..." maxlength="700" required></textarea>
+                </div>
+                <div>
+                    <label>Họ và tên:</label>
+                    <input type="text" name="fullname" id="fullnameInput" placeholder="Nhập họ và tên..." required>
+                </div>
+                <div>
+                    <label>Chức vụ:</label>
+                    <input type="text" name="position" id="positionInput" placeholder="Nhập chức vụ..." required>
+                </div>
+                <button type="submit">Tạo ảnh</button>
+            </form>
+        </div>
+
+        <div class="preview-section">
+            <h3>Xem trước</h3>
+            <div class="preview-container">
+                <img src="https://feeplanceritcantho.click/public/frame.png" alt="Frame" class="preview-image" id="frameImage">
+                <img src="" alt="Avatar Preview" class="preview-avatar" id="avatarPreview" style="display: none;">
+                <div class="preview-text" id="textPreview">Nhập thông điệp của bạn...</div>
+                <div class="preview-signature" id="signaturePreview">Họ tên<br>Chức vụ</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Preview ảnh đại diện
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const avatarPreview = document.getElementById('avatarPreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    avatarPreview.src = e.target.result;
+                    avatarPreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                avatarPreview.style.display = 'none';
+            }
+        });
+
+        // Preview text và đếm ký tự
+        document.getElementById('textInput').addEventListener('input', function(e) {
+            const textPreview = document.getElementById('textPreview');
+            const charCount = document.getElementById('charCount');
+            const text = e.target.value;
+            const currentLength = text.length;
+            
+            // Cập nhật preview
+            textPreview.textContent = text || 'Nhập thông điệp của bạn...';
+            
+            // Cập nhật đếm ký tự
+            charCount.textContent = currentLength + '/700';
+            
+            // Đổi màu khi gần đạt giới hạn
+            if (currentLength > 650) {
+                charCount.style.color = '#ff0000'; // Đỏ khi > 650
+            } else if (currentLength > 600) {
+                charCount.style.color = '#ff9900'; // Cam khi > 400
+            } else {
+                charCount.style.color = '#666'; // Xám bình thường
+            }
+        });
+
+        // Preview họ tên và chức vụ
+        function updateSignature() {
+            const signaturePreview = document.getElementById('signaturePreview');
+            const fullname = document.getElementById('fullnameInput').value || 'Họ tên';
+            const position = document.getElementById('positionInput').value || 'Chức vụ';
+            signaturePreview.textContent = fullname + '\n' + position;
+        }
+
+        document.getElementById('fullnameInput').addEventListener('input', updateSignature);
+        document.getElementById('positionInput').addEventListener('input', updateSignature);
+    </script>
+</body>
+</html>
